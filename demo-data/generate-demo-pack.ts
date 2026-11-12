@@ -14,18 +14,18 @@ const LOGOS_DIR = path.join(PUBLIC_DEMO_DIR, 'logos');
 const CREATIVES_DIR = path.join(PUBLIC_DEMO_DIR, 'creatives');
 
 // Helper to create SVG for Lumora spiral logo mark
-function createLogoSvg(fgHex: string, bgHex: string, width = 200, height = 200, scaleX = 1.0, scaleY = 1.0): string {
-  const scaledW = Math.round(150 * scaleX);
-  const scaledH = Math.round(150 * scaleY);
-  const strokeW = Math.round(20 * Math.min(scaleX, scaleY));
+function createLogoSvg(fgHex: string, bgHex?: string, width = 200, height = 200, scaleX = 1.0, scaleY = 1.0): string {
+  const scaledW = Math.round(width * scaleX);
+  const scaledH = Math.round(height * scaleY);
+  const strokeW = Math.round(24 * Math.min(scaleX, scaleY));
 
   return `
     <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="${width}" height="${height}" fill="${bgHex}"/>
+      ${bgHex ? `<rect width="${width}" height="${height}" fill="${bgHex}"/>` : ''}
       <g transform="translate(${(width - scaledW) / 2}, ${(height - scaledH) / 2}) scale(${scaleX}, ${scaleY})">
-        <circle cx="75" cy="75" r="55" fill="none" stroke="${fgHex}" stroke-width="${strokeW}"/>
-        <path d="M 75 30 A 45 45 0 0 1 120 75 A 25 25 0 0 1 95 75" fill="none" stroke="${fgHex}" stroke-width="${strokeW}" stroke-linecap="round"/>
-        <circle cx="75" cy="75" r="10" fill="${fgHex}"/>
+        <circle cx="100" cy="100" r="75" fill="none" stroke="${fgHex}" stroke-width="${strokeW}"/>
+        <path d="M 100 40 A 60 60 0 0 1 160 100 A 30 30 0 0 1 130 100" fill="none" stroke="${fgHex}" stroke-width="${strokeW}" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="14" fill="${fgHex}"/>
       </g>
     </svg>
   `;
@@ -67,14 +67,14 @@ export async function generateDemoPack() {
     <svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
       <rect width="800" height="500" fill="#F4F6F9"/>
       <!-- Header Bar -->
-      <rect x="0" y="0" width="800" height="90" fill="#0B1B3A"/>
-      <!-- Approved Logo (at x=40, y=15, 60x60) -->
-      <g transform="translate(40, 15) scale(0.3)">
+      <rect x="0" y="0" width="800" height="100" fill="#0B1B3A"/>
+      <!-- Approved Logo (at x=40, y=20, 60x60) -->
+      <g transform="translate(40, 20) scale(0.3)">
         <circle cx="100" cy="100" r="75" fill="none" stroke="#139A93" stroke-width="24"/>
         <path d="M 100 40 A 60 60 0 0 1 160 100 A 30 30 0 0 1 130 100" fill="none" stroke="#139A93" stroke-width="24" stroke-linecap="round"/>
         <circle cx="100" cy="100" r="14" fill="#139A93"/>
       </g>
-      <text x="120" y="55" font-family="sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">LUMORA FITNESS</text>
+      <text x="120" y="60" font-family="sans-serif" font-size="28" font-weight="bold" fill="#FFFFFF">LUMORA FITNESS</text>
       <!-- Hero Body -->
       <rect x="50" y="140" width="700" height="240" rx="12" fill="#FFFFFF"/>
       <text x="90" y="210" font-family="sans-serif" font-size="32" font-weight="bold" fill="#0B1B3A">Move with Intention</text>
@@ -146,13 +146,10 @@ export async function generateDemoPack() {
       <rect width="800" height="500" fill="#F4F6F9"/>
       <rect x="0" y="0" width="800" height="80" fill="#0B1B3A"/>
       <!-- Stretched Lumora Logo (150px wide x 100px tall => 1.5:1 ratio) -->
-      <g transform="translate(40, 110)">
-        <rect width="180" height="120" fill="none"/>
-        <g transform="scale(1.5, 1.0)">
-          <circle cx="50" cy="50" r="35" fill="none" stroke="#139A93" stroke-width="12"/>
-          <path d="M 50 20 A 30 30 0 0 1 80 50 A 15 15 0 0 1 65 50" fill="none" stroke="#139A93" stroke-width="12" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="7" fill="#139A93"/>
-        </g>
+      <g transform="translate(40, 110) scale(0.75, 0.50)">
+        <circle cx="100" cy="100" r="75" fill="none" stroke="#139A93" stroke-width="24"/>
+        <path d="M 100 40 A 60 60 0 0 1 160 100 A 30 30 0 0 1 130 100" fill="none" stroke="#139A93" stroke-width="24" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="14" fill="#139A93"/>
       </g>
       <text x="250" y="170" font-family="sans-serif" font-size="30" font-weight="bold" fill="#0B1B3A">Spring Movement Sprint</text>
     </svg>

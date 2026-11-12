@@ -182,8 +182,8 @@ export function findLogoByTemplateMatching(
   let bestIoU = 0;
   let bestCandidate: DetectedCandidate | null = null;
 
-  // Search across multiple scales (h from 30px to 180px) and aspect stretches (1.0 to 1.7)
-  const scales = [40, 60, 75, 100, 140];
+  // Search across canonical scales and 4 aspect ratios
+  const scales = [40, 60, 80, 100, 120, 140];
   const aspectStretches = [1.0, 1.25, 1.5, 1.7];
 
   for (const ref of references) {
@@ -194,9 +194,9 @@ export function findLogoByTemplateMatching(
         const w = Math.round(h * a);
         if (w > width * 0.8) continue;
 
-        // Slide window across key branding locations (headers, margins, quadrants, center)
-        const stepX = Math.max(15, Math.round(w / 3));
-        const stepY = Math.max(15, Math.round(h / 3));
+        // Slide window with fine-grained steps to align with logo boundaries
+        const stepX = Math.min(12, Math.max(8, Math.round(w / 6)));
+        const stepY = Math.min(12, Math.max(8, Math.round(h / 6)));
 
         for (let y = 0; y <= height - h; y += stepY) {
           for (let x = 0; x <= width - w; x += stepX) {
@@ -204,6 +204,24 @@ export function findLogoByTemplateMatching(
             const bgR = rawBuffer[(y * width + x) * 3];
             const bgG = rawBuffer[(y * width + x) * 3 + 1];
             const bgB = rawBuffer[(y * width + x) * 3 + 2];
+
+            // Fast coarse pre-filter (16x16 = 256 samples) to skip empty background patches
+            let coarseInk = 0;
+            for (let cpy = 0; cpy < 64; cpy += 4) {
+              const imgY = Math.min(height - 1, Math.round(y + (cpy / 63) * (h - 1)));
+              const rowOffset = imgY * width * 3;
+              for (let cpx = 0; cpx < 64; cpx += 4) {
+                const imgX = Math.min(width - 1, Math.round(x + (cpx / 63) * (w - 1)));
+                const idx = rowOffset + imgX * 3;
+                const diff = Math.abs(rawBuffer[idx] - bgR) + Math.abs(rawBuffer[idx + 1] - bgG) + Math.abs(rawBuffer[idx + 2] - bgB);
+                if (diff > 40) coarseInk++;
+              }
+            }
+
+            // Only evaluate dense 64x64 mask if ink coverage is plausible (12% to 75% of patch)
+            if (coarseInk < 30 || coarseInk > 200) {
+              continue;
+            }
 
             const mask = new Uint8Array(64 * 64);
             let inkCount = 0;
@@ -239,7 +257,13 @@ export function findLogoByTemplateMatching(
             if (inkCount >= 600 && inkCount <= 3000) {
               const iou = computeMaskIoU(mask, ref.mask64);
 
-              if (iou > bestIoU) {
+              // Prefer 1:1 canonical aspect ratio unless distorted template is distinctly better (+0.08)
+              const threshold =
+                bestCandidate && bestCandidate.aspectRatio === 1.0 && a !== 1.0
+                  ? bestIoU + 0.08
+                  : bestIoU;
+
+              if (iou > threshold) {
                 bestIoU = iou;
 
                 const meanR = Math.round(fgRSum / inkCount);
@@ -249,7 +273,7 @@ export function findLogoByTemplateMatching(
                 let varR = 0;
                 for (const v of rVals) varR += Math.pow(v - meanR, 2);
                 const stdevR = Math.sqrt(varR / rVals.length);
-                const isGradient = stdevR > 35;
+                const isGradient = stdevR > 55;
 
                 const regionX = Math.round((x / width) * 100);
                 const regionY = Math.round((y / height) * 100);
@@ -277,7 +301,7 @@ export function findLogoByTemplateMatching(
     }
   }
 
-  return bestIoU >= 0.40 ? bestCandidate : null;
+  return bestIoU >= 0.45 ? bestCandidate : null;
 }
 
 /**
@@ -427,7 +451,7 @@ export async function auditLogosInImage(
     }
 
     const roundedDE = Math.round(minColorDeltaE * 10) / 10;
-    const isApprovedColor = roundedDE <= 8.0 && !matchedLogo.isGradient;
+    const isApprovedColor = roundedDE <= 8.0 && !matchedLogo.hasDropShadow;
 
     detectedLogos.push({
       name: 'Lumora Master Logo',

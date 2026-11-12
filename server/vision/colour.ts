@@ -393,8 +393,8 @@ export function auditColorsAgainstPalette(
       continue;
     }
 
-    // Violation condition: Delta E > 12, coverage >= 3%, and chroma C* >= 25 (saturated)
-    if (roundedDE > 12.0 && cluster.coverage >= 3.0 && cluster.chroma >= 25.0) {
+    // Violation condition: Delta E > 8.0, coverage >= 3%, and chroma C* >= 20 (saturated off-palette)
+    if (roundedDE > 8.0 && cluster.coverage >= 3.0 && cluster.chroma >= 20.0) {
       const confidence = computeColorConfidence(roundedDE, cluster.coverage, cluster.chroma);
       const isHighSeverity = cluster.coverage >= 15.0 || cluster.region.y < 35; // Hero or CTA area
 
@@ -424,7 +424,7 @@ export function auditColorsAgainstPalette(
         },
         review_status: 'unreviewed',
       });
-    } else if (roundedDE > 5.0 && roundedDE <= 12.0 && cluster.coverage >= 3.0 && cluster.chroma >= 20.0) {
+    } else if (roundedDE > 4.5 && roundedDE <= 8.0 && cluster.coverage >= 3.0 && cluster.chroma >= 15.0) {
       // Near miss (possible concern, Low severity)
       const confidence = 0.65;
       colorIssues.push({

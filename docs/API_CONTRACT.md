@@ -36,10 +36,12 @@ Authentication: `Authorization: Bearer <JWT/Token>` with claims `sub, org, role`
 | `GET` | `/review-queue` | reviewer, admin | Lists pending submissions sorted by severity then age |
 | `POST` | `/versions/:id/decision` | reviewer, admin | Records approval or change request (self-approval forbidden) |
 | `GET` | `/versions/:id/diff` | roles with access | Returns word-level diff between two versions |
-| `POST` | `/versions/:id/visual-check` | creator, reviewer, admin | Runs automated image brand check (CIE Delta E + logo distortion) |
-| `GET` | `/versions/:id/visual-check` | read all | Retrieves automated visual check report for version |
-| `PATCH` | `/visual-issues/:id` | reviewer, admin | Updates visual issue review status and comments |
-| `GET` | `/brand-profiles/:id/visual-references` | read all | Retrieves approved logos, palette, and visual guidelines |
+| `POST` | `/versions/:id/visual-check` | reviewer, admin | Runs pixel-level brand check (CIE ΔE 2000, 64x64 IoU, 15MB body, concurrency guard) |
+| `GET` | `/versions/:id/visual-check` | any authenticated | Retrieves latest visual report (supports `?history=1`) |
+| `GET` | `/visual-checks/:reportId/status` | any authenticated | Polls real-time analysis pipeline stage & progress percentage |
+| `GET` | `/brand-profiles/:id/visual-references` | any authenticated | Retrieves approved logos, color palette, active visual guidelines, readiness |
+| `PATCH` | `/visual-issues/:id` | reviewer, admin | Updates review status (`confirmed`, `false_positive`, `needs_correction`); author blocked (403) |
+| `POST` | `/visual-issues/:id/comments` | reviewer, admin | Adds reviewer comment/note to a visual issue |
 | `GET` | `/analytics/summary` | admin, viewer, reviewer | Returns aggregate metrics and "may be unclear" rules |
 | `GET` | `/audit-logs` | admin, viewer | Returns append-only audit trail |
 | `POST` | `/eval` | public | Runs labelled test set benchmark (TS-01 to TS-08) |

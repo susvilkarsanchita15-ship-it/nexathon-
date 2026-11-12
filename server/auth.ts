@@ -12,7 +12,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { userRepo, sessionRepo, auditRepo } from './db/repos';
+import { userRepo } from './db/repos';
 import { config } from './config';
 import { hasPermission, Permission, UserRole } from './permissions';
 
@@ -43,8 +43,8 @@ export function signAccessToken(user: {
   user_id: string;
   org_id: string;
   role: string;
-  email: string;
-  full_name: string;
+  email?: string;
+  full_name?: string;
   token_version?: number;
 }): string {
   return jwt.sign(
@@ -52,8 +52,8 @@ export function signAccessToken(user: {
       sub: user.user_id,
       org: user.org_id,
       role: user.role,
-      email: user.email,
-      fullName: user.full_name,
+      email: user.email || `${user.role || 'user'}@lumora.test`,
+      fullName: user.full_name || 'User',
       tokenVersion: user.token_version ?? 0,
     },
     JWT_SECRET,
@@ -121,7 +121,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
 
     // Token version check (revocation detection)
-    const userTokenVersion = user.token_version ?? 0;
+    const userTokenVersion = (user as any).token_version ?? 0;
     const claimTokenVersion = claims.tokenVersion ?? 0;
     if (claimTokenVersion < userTokenVersion) {
       return res.status(401).json({

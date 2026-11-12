@@ -35,6 +35,9 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  Terminal,
+  Clock,
+  Hash,
 } from 'lucide-react';
 
 interface AutomatedBrandVisualCheckProps {
@@ -63,6 +66,7 @@ export const AutomatedBrandVisualCheck: React.FC<AutomatedBrandVisualCheckProps>
   // Manual compare overlay slider state
   const [overlayOpacity, setOverlayOpacity] = useState(50);
   const [activeVisualTab, setActiveVisualTab] = useState<'automated' | 'manual_overlay'>('automated');
+  const [showEngineTrace, setShowEngineTrace] = useState(false);
 
   const isReviewerOrAdmin = currentUser.role === 'reviewer' || currentUser.role === 'admin';
 

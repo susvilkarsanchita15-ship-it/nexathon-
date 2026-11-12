@@ -374,10 +374,21 @@ export type VisualIssueSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 export type VisualIssueReviewStatus =
   | 'pending'
+  | 'unreviewed'
   | 'confirmed'
   | 'false_positive'
   | 'needs_correction'
   | 'unreviewed';
+
+export interface DbHealthReport {
+  connected: boolean;
+  status: 'connected' | 'unconfigured' | 'unreachable' | 'active';
+  latencyMs: number;
+  mode?: 'pool' | 'adapter';
+  error?: string;
+  checkedAt?: string;
+  tablesVerified?: string[];
+}
 
 export interface DetectedRegion {
   x: number; // percentage 0-100 or px
@@ -400,6 +411,8 @@ export interface ColorComparison {
 }
 
 export interface LogoComparison {
+  approved_asset_name?: string;
+  approved_aspect_ratio?: number;
   approved_logo_id?: string;
   approved_logo_name?: string;
   approved_asset_name?: string;

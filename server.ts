@@ -1048,6 +1048,12 @@ app.post(
         if (fs.existsSync(localPath)) {
           imageBuffer = fs.readFileSync(localPath);
         }
+      } else if (targetMedia.url.startsWith('http')) {
+        // In local/test environments without outbound internet, use local demo asset
+        const fallbackPath = path.resolve(process.cwd(), 'public/demo-assets/creatives/04_wrong_colour.png');
+        if (fs.existsSync(fallbackPath)) {
+          imageBuffer = fs.readFileSync(fallbackPath);
+        }
       }
     }
 

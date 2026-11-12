@@ -158,6 +158,21 @@ export const SubmissionPage: React.FC<SubmissionPageProps> = ({
     }
   };
 
+  const loadVisualPreset = (preset: { id: string; filename: string; label: string; alt: string | null }) => {
+    setTitle(`Visual Audit: ${preset.label}`);
+    setContentType('social_post');
+    setBodyText(`Campaign visual creative loaded for automated pixel-level brand check.\nAsset: ${preset.filename}`);
+    setMediaList([
+      {
+        name: preset.filename,
+        alt_text: preset.alt,
+        url: `/demo-assets/creatives/${preset.filename}`,
+      },
+    ]);
+    setFileNotice(`Loaded visual test asset: ${preset.filename}`);
+    setTimeout(() => setFileNotice(null), 3000);
+  };
+
   // Helper to add processed image items
   const addImageFiles = async (files: FileList | File[]) => {
     const list = Array.from(files).filter((f) => f.type.startsWith('image/'));
